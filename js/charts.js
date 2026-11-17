@@ -62,7 +62,7 @@
     if (spec.diag) { g.strokeStyle = c.muted; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(xmap(0), ymap(0)); g.lineTo(xmap(1), ymap(1)); g.stroke(); g.setLineDash([]); }
     const hits = [];
     spec.series.forEach((s) => {
-      g.strokeStyle = s.color; g.fillStyle = s.color; g.lineWidth = 2; g.setLineDash(s.dash ? [6, 4] : []);
+      g.strokeStyle = s.color; g.fillStyle = s.color; g.lineWidth = 2; g.setLineDash(SB.dashFor ? SB.dashFor(s.color, s.dash) : (s.dash ? [6, 4] : []));
       let pen = false;
       g.beginPath();
       s.points.forEach((p) => {
@@ -142,5 +142,15 @@
   SB.charts = { draw, redrawAll() { live.forEach((c) => c.isConnected && c.offsetParent !== null && c._draw()); } };
   let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(SB.charts.redrawAll, 150); });
 
-  SB.METHOD_COLOR = { seqlsb: '#2f66e8', rndlsb: '#16a34a', lsbm: '#0891b2', suni: '#db2777', dct: '#7c3aed', dctvote: '#0d9488', spread: '#ea6a0c', dwt: '#b7791f' };
+  /* black-and-white theme: methods differ by gray level and by dash pattern (shade flips in dark mode) */
+  (function () {
+    const ids = ['seqlsb', 'rndlsb', 'lsbm', 'suni', 'dct', 'dctvote', 'spread', 'dwt'];
+    const light = ['#000000', '#555555', '#999999', '#000000', '#555555', '#999999', '#000000', '#555555'];
+    const dark = ['#ffffff', '#c4c4c4', '#8a8a8a', '#ffffff', '#c4c4c4', '#8a8a8a', '#ffffff', '#c4c4c4'];
+    const isDark = () => { const t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); };
+    SB.METHOD_COLOR = {}; SB.METHOD_DASH = {};
+    const dashes = [[], [6, 4], [2, 3], [10, 3, 2, 3], [], [6, 4], [2, 3], [10, 3, 2, 3]];
+    ids.forEach((id, i) => { Object.defineProperty(SB.METHOD_COLOR, id, { enumerable: true, get: () => (isDark() ? dark : light)[i] }); SB.METHOD_DASH[id] = dashes[i]; });
+    SB.dashFor = (color, flag) => { if (flag) return [6, 4]; const i = (isDark() ? dark : light).indexOf(color); return i < 0 ? [] : dashes[i]; };
+  })();
 })();

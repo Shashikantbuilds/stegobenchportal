@@ -201,7 +201,7 @@
 
   /* --------------------------------------------------------- leaderboard */
   const best = (arr, f, dir) => arr.reduce((a, b) => ((dir || 1) * (f(b) - f(a)) > 0 ? b : a));
-  const heat = (p) => `background:hsl(${Math.round(p * 1.3)} 65% var(--hl,90%));color:hsl(${Math.round(p * 1.3)} 60% var(--hd,24%))`;
+  const heat = (p) => `background:hsl(0 0% var(--hl,90%));color:hsl(0 0% var(--hd,24%))`;
   const okRows = () => state.last.results.filter((r) => r.status === 'ok');
   const label = (r, multi) => r.name + (multi ? ` · ${r.formatLabel}` : '');
   const rankedRows = () => { const ok = okRows(); ok.forEach((r) => { r.overall = SB.overall(r, state.goal); }); return [...ok].sort((a, b) => b.overall - a.overall); };
